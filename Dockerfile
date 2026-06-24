@@ -1,18 +1,18 @@
-# 1. Usa a ferramenta oficial da Microsoft (Versão 8!)
+# Etapa 1: Build (A usar o SDK)
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 WORKDIR /App
 
-# Copia os teus ficheiros
+# Copiar tudo e restaurar
 COPY . ./
-
-# Restaura e prepara a versão final (Release)
 RUN dotnet restore
+
+# Compilar a versão final
 RUN dotnet publish -c Release -o out
 
-# 2. Usa a versão super leve só para correr o bot (Versão 8!)
-FROM mcr.microsoft.com/dotnet/runtime:8.0
+# Etapa 2: Runtime (O SEGREDO ESTÁ AQUI: "aspnet" em vez de só "runtime")
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /App
 COPY --from=build-env /App/out .
 
-# O comando que liga a máquina
+# Arrancar o bot
 ENTRYPOINT ["dotnet", "FinanceBot.dll"]
