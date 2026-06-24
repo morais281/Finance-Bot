@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums; // <-- Necessário para o texto em Negrito
+using Telegram.Bot.Types.Enums; 
 using FinanceBot.Data;   
 using FinanceBot.Models; 
 
@@ -40,6 +40,7 @@ public class FinanceBotHandler
             var utilizador = db.Users.FirstOrDefault(u => u.Id == chatId);
             if (utilizador == null)
             {
+                // Agora toda a gente entra e usa à vontade sem limites
                 utilizador = new FinanceBot.Models.User { Id = chatId, Tier = "Gratuito" };
                 db.Users.Add(utilizador);
                 db.SaveChanges();
@@ -53,15 +54,7 @@ public class FinanceBotHandler
 
             string tipoTransacao = texto.StartsWith("/gasto") ? "Despesa" : "Receita";
 
-            // Barreira Premium (Só conta as Despesas para o limite)
-            var inicioDoMes = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
-            var contagemTransacoes = db.Transactions.Count(t => t.UserId == chatId && t.Data >= inicioDoMes && t.Tipo == "Despesa");
-
-            if (tipoTransacao == "Despesa" && utilizador.Tier == "Gratuito" && contagemTransacoes >= 50)
-            {
-                await client.SendTextMessageAsync(chatId, "⚠️ Atingiste o limite gratuito de 50 despesas este mês!\nDesbloqueia a versão ilimitada por 2€/mês.", cancellationToken: token);
-                return;
-            }
+            // Barreira Premium e contadores apagados! Código mais rápido e 100% grátis.
 
             string[] partes = textoOriginal.Split(' ', 3);
             if (partes.Length < 3)
@@ -83,7 +76,7 @@ public class FinanceBotHandler
                 Valor = valorRecebido,
                 Categoria = partes[2],
                 Tipo = tipoTransacao,
-                Data = DateTime.UtcNow
+                Data = DateTime.UtcNow // Mantive o UtcNow que configurámos antes!
             };
 
             db.Transactions.Add(novaTransacao);
@@ -114,7 +107,6 @@ public class FinanceBotHandler
                                     $"{(saldo >= 0 ? "✅" : "⚠️")} *SALDO DISPONÍVEL:* {saldo}€\n\n" +
                                     $"📂 *Despesas por Categoria:*\n{despesasTexto}";
 
-            // O ParseMode.Markdown é o que vai ativar as letras gordas no Telegram!
             await client.SendTextMessageAsync(chatId, mensagemResumo, parseMode: ParseMode.Markdown, cancellationToken: token);
         }
     }
