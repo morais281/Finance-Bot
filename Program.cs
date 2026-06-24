@@ -1,36 +1,46 @@
 ﻿using System;
 using System.Threading;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using FinanceBot.Services;
 using FinanceBot.Data;
 
-
-// 1. Garante a base de dados
-using (var db = new AppDbContext())
-
+class Program
 {
-    // Tentativa de ligação com pausa para o Postgres acordar
-    for (int i = 0; i < 5; i++)
+    static void Main(string[] args)
     {
-        try
+        // 1. Configurar servidor web na porta 8080 para satisfazer o Render
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions {
+            Args = args
+        });
+        
+        builder.WebHost.UseUrls("http://0.0.0.0:8080");
+        
+        var app = builder.Build();
+        app.MapGet("/", () => "Bot is alive!");
+        app.StartAsync(); // Inicia o servidor em background
+
+        // 2. Garantir a base de dados
+        using (var db = new AppDbContext())
         {
             db.Database.EnsureCreated();
             Console.WriteLine("Base de dados verificada!");
-            break;
         }
-        catch
+
+        // 3. Iniciar o Bot
+        string token = Environment.GetEnvironmentVariable("TELEGRAM_TOKEN");
+        if (string.IsNullOrEmpty(token))
         {
-            Console.WriteLine("A aguardar ligação à base de dados...");
-            Thread.Sleep(5000); // Espera 5 segundos
+            Console.WriteLine("Erro: TELEGRAM_TOKEN não encontrado!");
         }
+        else
+        {
+            FinanceBotHandler bot = new FinanceBotHandler(token);
+            bot.IniciarBot();
+            Console.WriteLine("Bot de Finanças online e à escuta...");
+        }
+
+        // Manter a aplicação viva
+        Thread.Sleep(Timeout.Infinite);
     }
 }
-
-// 2. Inicia o Bot
-string token = Environment.GetEnvironmentVariable("TELEGRAM_TOKEN") ?? "TEU_TOKEN_AQUI";
-FinanceBotHandler bot = new FinanceBotHandler(token);
-bot.IniciarBot();
-
-Console.WriteLine("Bot de Finanças online e à escuta...");
-
-// 3. Mantém o bot vivo
-Thread.Sleep(Timeout.Infinite);
