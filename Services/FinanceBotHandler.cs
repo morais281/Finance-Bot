@@ -44,7 +44,7 @@ public class FinanceBotHandler
                 db.Users.Add(utilizador);
                 db.SaveChanges();
             }
-            await client.SendMessage(chatId, "Bem-vindo! 💸\nUsa /ganho [valor] [categoria] para receitas.\nUsa /gasto [valor] [categoria] para despesas.\nUsa /resumo para veres o teu saldo.", cancellationToken: token);
+            await client.SendTextMessageAsync(chatId, "Bem-vindo! 💸\nUsa /ganho [valor] [categoria] para receitas.\nUsa /gasto [valor] [categoria] para despesas.\nUsa /resumo para veres o teu saldo.", cancellationToken: token);
         }
         else if (texto.StartsWith("/gasto") || texto.StartsWith("/ganho"))
         {
@@ -59,21 +59,21 @@ public class FinanceBotHandler
 
             if (tipoTransacao == "Despesa" && utilizador.Tier == "Gratuito" && contagemTransacoes >= 50)
             {
-                await client.SendMessage(chatId, "⚠️ Atingiste o limite gratuito de 50 despesas este mês!\nDesbloqueia a versão ilimitada por 2€/mês.", cancellationToken: token);
+                await client.SendTextMessageAsync(chatId, "⚠️ Atingiste o limite gratuito de 50 despesas este mês!\nDesbloqueia a versão ilimitada por 2€/mês.", cancellationToken: token);
                 return;
             }
 
             string[] partes = textoOriginal.Split(' ', 3);
             if (partes.Length < 3)
             {
-                await client.SendMessage(chatId, $"⚠️ Formato incorreto. Exemplo: {partes[0]} 12.50 {(tipoTransacao == "Despesa" ? "Alimentação" : "Salário")}", cancellationToken: token);
+                await client.SendTextMessageAsync(chatId, $"⚠️ Formato incorreto. Exemplo: {partes[0]} 12.50 {(tipoTransacao == "Despesa" ? "Alimentação" : "Salário")}", cancellationToken: token);
                 return;
             }
 
             string valorTexto = partes[1].Replace(',', '.');
             if (!decimal.TryParse(valorTexto, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal valorRecebido))
             {
-                await client.SendMessage(chatId, "⚠️ Valor inválido.", cancellationToken: token);
+                await client.SendTextMessageAsync(chatId, "⚠️ Valor inválido.", cancellationToken: token);
                 return;
             }
 
@@ -90,7 +90,7 @@ public class FinanceBotHandler
             db.SaveChanges();
 
             string emoji = tipoTransacao == "Despesa" ? "💸" : "💰";
-            await client.SendMessage(chatId, $"{emoji} Registado: {valorRecebido}€ em '{partes[2]}'.", cancellationToken: token);
+            await client.SendTextMessageAsync(chatId, $"{emoji} Registado: {valorRecebido}€ em '{partes[2]}'.", cancellationToken: token);
         }
         else if (texto.StartsWith("/resumo"))
         {
@@ -115,7 +115,7 @@ public class FinanceBotHandler
                                     $"📂 *Despesas por Categoria:*\n{despesasTexto}";
 
             // O ParseMode.Markdown é o que vai ativar as letras gordas no Telegram!
-            await client.SendMessage(chatId, mensagemResumo, parseMode: ParseMode.Markdown, cancellationToken: token);
+            await client.SendTextMessageAsync(chatId, mensagemResumo, parseMode: ParseMode.Markdown, cancellationToken: token);
         }
     }
 
