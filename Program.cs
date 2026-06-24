@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Npgsql;
 using FinanceBot.Services;
 using FinanceBot.Data; // <-- Importante para ler a Base de Dados
 
@@ -23,4 +24,15 @@ string token = Environment.GetEnvironmentVariable("TELEGRAM_TOKEN") ?? "87930640
 
         Thread.Sleep(Timeout.Infinite);
     }
+    string connString = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+using (var conn = new NpgsqlConnection(connString))
+{
+    conn.Open();
+    // Aqui vais executar o CREATE TABLE que te dei antes
+    using (var cmd = new NpgsqlCommand("CREATE TABLE IF NOT EXISTS Objetivos (...)", conn))
+    {
+        cmd.ExecuteNonQuery();
+    }
+}
 }
