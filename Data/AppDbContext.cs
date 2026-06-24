@@ -8,6 +8,7 @@ public class AppDbContext : DbContext
     // Estas são as tuas tabelas na base de dados
     public DbSet<User> Users { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
+    public DbSet<Objetivo> Objetivos { get; set; }
 
     // Este método configura a base de dados SQLite e cria o ficheiro "financas.db"
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
