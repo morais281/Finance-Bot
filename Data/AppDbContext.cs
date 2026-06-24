@@ -13,6 +13,6 @@ public class AppDbContext : DbContext
     // Este método configura a base de dados SQLite e cria o ficheiro "financas.db"
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("Data Source=financas.db");
+        optionsBuilder.UseNpgsql(Environment.GetEnvironmentVariable("DATABASE_URL"));
     }
 }
