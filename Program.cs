@@ -9,6 +9,7 @@ class Program
 {
     static void Main(string[] args)
     {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         // 1. Manter a porta 8080 aberta para o Render não matar o bot
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = args });
         builder.WebHost.UseUrls("http://0.0.0.0:8080");
