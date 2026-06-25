@@ -14,7 +14,7 @@ class Program
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = args });
         builder.WebHost.UseUrls("http://0.0.0.0:8080");
         var app = builder.Build();
-        app.MapGet("/", () => "Bot e Base de Dados estão vivos!");
+        app.MapMethods("/", new[] { "GET", "HEAD" }, () => "Bot de Finanças online e a bombar!");
         app.StartAsync();
 
         // 2. Ligar e preparar a Base de Dados (onde ele guarda o user)
